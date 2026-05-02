@@ -31,9 +31,7 @@ export default function PesertaListScreen({ navigation }) {
 
   const hapusPeserta = async (id) => {
     Alert.alert("Konfirmasi", "Yakin ingin menghapus data ini?", [
-      {
-        text: "Batal",
-      },
+      { text: "Batal" },
       {
         text: "Hapus",
         onPress: async () => {
@@ -54,24 +52,29 @@ export default function PesertaListScreen({ navigation }) {
     <View style={styles.card}>
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("PesertaDetail", {
-            id: item.id,
-          })
+          navigation.navigate("PesertaDetail", { id: item.id })
         }
       >
         <Text style={styles.nama}>{item.nama}</Text>
-        <Text>Tempat Lahir: {item.tempatlahir}</Text>
-        <Text>Tanggal Lahir: {item.tanggallahir}</Text>
-        <Text>Telepon: {item.telepon}</Text>
+
+        <Text style={styles.info}>
+           {item.tempatlahir}, {item.tanggallahir}
+        </Text>
+
+        <Text style={styles.info}>
+           {item.telpon || "-"}
+        </Text>
+
+        <Text style={styles.info}>
+           {item.nama_kabko || "-"}, {item.nama_provinsi || "-"}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.action}>
         <TouchableOpacity
           style={styles.editButton}
           onPress={() =>
-            navigation.navigate("PesertaForm", {
-              id: item.id,
-            })
+            navigation.navigate("PesertaForm", { id: item.id })
           }
         >
           <Text style={styles.buttonText}>Edit</Text>
@@ -127,14 +130,19 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 12,
     elevation: 3,
   },
   nama: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  info: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 2,
   },
   action: {
     flexDirection: "row",
