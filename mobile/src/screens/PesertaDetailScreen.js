@@ -14,7 +14,7 @@ export default function PesertaDetailScreen({ route, navigation }) {
   const { id } = route.params;
   const [peserta, setPeserta] = useState(null);
 
-  // 🔥 Auto refresh setiap balik ke screen ini
+  // Auto refresh 
   useFocusEffect(
     React.useCallback(() => {
       getDetailPeserta();
