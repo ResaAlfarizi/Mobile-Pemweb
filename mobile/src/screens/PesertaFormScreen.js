@@ -36,7 +36,7 @@ export default function PesertaFormScreen({ route, navigation }) {
   useEffect(() => {
     getKabko();
     if (id) getPesertaById();
-  }, []);
+  }, [id]);
 
   const getKabko = async () => {
     try {
@@ -48,18 +48,21 @@ export default function PesertaFormScreen({ route, navigation }) {
   };
 
   const getPesertaById = async () => {
-    const res = await api.get(`/peserta/${id}`);
-    setForm({
-      ...res.data,
-      id_kabko: res.data.id_kabko?.toString(),
-    });
+    try {
+      const res = await api.get(`/peserta/${id}`);
+      setForm({
+        ...res.data,
+        id_kabko: res.data.id_kabko?.toString(),
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleChange = (name, value) => {
     setForm({ ...form, [name]: value });
   };
 
-  //  Upload Foto
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -71,7 +74,6 @@ export default function PesertaFormScreen({ route, navigation }) {
     }
   };
 
-  //  Date Picker
   const onChangeDate = (event, selectedDate) => {
     setShowDate(false);
     if (selectedDate) {
@@ -102,148 +104,172 @@ export default function PesertaFormScreen({ route, navigation }) {
   };
 
   return (
-  <ScrollView style={styles.container}>
-    <TextInput
-      style={styles.input}
-      placeholder="Nama"
-      value={form.nama}
-      onChangeText={(v) => handleChange("nama", v)}
-    />
-
-    <TextInput
-      style={styles.input}
-      placeholder="Tempat Lahir"
-      value={form.tempatlahir}
-      onChangeText={(v) => handleChange("tempatlahir", v)}
-    />
-
-    {/* DATE */}
-    <TouchableOpacity onPress={() => setShowDate(true)} style={styles.input}>
-      <Text>{form.tanggallahir || "Pilih Tanggal Lahir"}</Text>
-    </TouchableOpacity>
-
-    {showDate && (
-      <DateTimePicker
-        value={new Date()}
-        mode="date"
-        onChange={onChangeDate}
+    <ScrollView style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Nama"
+        value={form.nama}
+        onChangeText={(v) => handleChange("nama", v)}
       />
-    )}
 
-    <TextInput
-      style={styles.input}
-      placeholder="Agama"
-      value={form.agama}
-      onChangeText={(v) => handleChange("agama", v)}
-    />
+      <TextInput
+        style={styles.input}
+        placeholder="Tempat Lahir"
+        value={form.tempatlahir}
+        onChangeText={(v) => handleChange("tempatlahir", v)}
+      />
 
-    <TextInput
-      style={styles.input}
-      placeholder="Alamat"
-      value={form.alamat}
-      onChangeText={(v) => handleChange("alamat", v)}
-    />
-
-    <TextInput
-      style={styles.input}
-      placeholder="Telpon"
-      value={form.telpon}
-      onChangeText={(v) => handleChange("telpon", v)}
-    />
-
-    {/* JK */}
-    <Text>Jenis Kelamin</Text>
-    <View style={{ flexDirection: "row" }}>
-      <TouchableOpacity
-        style={[styles.jk, form.jk === "L" && styles.active]}
-        onPress={() => handleChange("jk", "L")}
-      >
-        <Text>L</Text>
+      <TouchableOpacity onPress={() => setShowDate(true)} style={styles.input}>
+        <Text>{form.tanggallahir || "Pilih Tanggal Lahir"}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.jk, form.jk === "P" && styles.active]}
-        onPress={() => handleChange("jk", "P")}
-      >
-          <Text>P</Text>
+      {showDate && (
+        <DateTimePicker
+          value={form.tanggallahir ? new Date(form.tanggallahir) : new Date()}
+          mode="date"
+          onChange={onChangeDate}
+        />
+      )}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Agama"
+        value={form.agama}
+        onChangeText={(v) => handleChange("agama", v)}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Alamat"
+        value={form.alamat}
+        onChangeText={(v) => handleChange("alamat", v)}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Telpon"
+        value={form.telpon}
+        onChangeText={(v) => handleChange("telpon", v)}
+        keyboardType="phone-pad"
+      />
+
+      <Text style={styles.label}>Jenis Kelamin</Text>
+      <View style={{ flexDirection: "row", marginBottom: 10 }}>
+        <TouchableOpacity
+          style={[styles.jk, form.jk === "L" && styles.active]}
+          onPress={() => handleChange("jk", "L")}
+        >
+          <Text>Laki-laki</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.jk, form.jk === "P" && styles.active]}
+          onPress={() => handleChange("jk", "P")}
+        >
+          <Text>Perempuan</Text>
         </TouchableOpacity>
       </View>
 
-    <TextInput
-      style={styles.input}
-      placeholder="Hobi"
-      value={form.hobi}
-      onChangeText={(v) => handleChange("hobi", v)}
-    />
-
-    {/* KABKO */}
-    <Text>Pilih Kab/Kota</Text>
-    <Picker
-      selectedValue={form.id_kabko}
-      onValueChange={(v) => handleChange("id_kabko", v)}
-    >
-      <Picker.Item label="Pilih Kab/Kota" value="" />
-      {Array.isArray(kabko) &&
-        kabko.map((item) => (
-          <Picker.Item
-            key={item.id}
-            label={item.nama}
-            value={item.id.toString()}
-          />
-        ))}
-    </Picker>
-
-    {/* FOTO */}
-    <Text style={{ marginTop: 10 }}>Foto</Text>
-
-    <TouchableOpacity onPress={pickImage} style={styles.saveButton}>
-      <Text style={{ color: "#fff" }}>Pilih Foto</Text>
-    </TouchableOpacity>
-
-    {form.foto ? (
-      <Image
-        source={{ uri: form.foto }}
-        style={{
-          width: 120,
-          height: 120,
-          marginTop: 10,
-          borderRadius: 10,
-          alignSelf: "center",
-        }}
+      <TextInput
+        style={styles.input}
+        placeholder="Hobi"
+        value={form.hobi}
+        onChangeText={(v) => handleChange("hobi", v)}
       />
-    ) : null}
 
-    <TouchableOpacity style={styles.saveButton} onPress={simpanPeserta}>
-      <Text style={styles.saveButtonText}>Simpan</Text>
-    </TouchableOpacity>
-  </ScrollView>
-);
+      <Text style={styles.label}>Pilih Kab/Kota</Text>
+      <View style={styles.pickerBox}>
+        <Picker
+          selectedValue={form.id_kabko}
+          onValueChange={(v) => handleChange("id_kabko", v)}
+        >
+          <Picker.Item label="Pilih Kab/Kota" value="" />
+          {Array.isArray(kabko) &&
+            kabko.map((item) => (
+              <Picker.Item
+                key={item.id.toString()}
+                label={item.nama}
+                value={item.id.toString()}
+              />
+            ))}
+        </Picker>
+      </View>
+
+      <Text style={styles.label}>Foto</Text>
+      <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
+        <Text style={{ color: "#fff" }}>Pilih Foto dari Galeri</Text>
+      </TouchableOpacity>
+
+      {form.foto ? (
+        <Image
+          source={{ uri: form.foto }}
+          style={styles.previewFoto}
+        />
+      ) : null}
+
+      <TouchableOpacity style={styles.saveButton} onPress={simpanPeserta}>
+        <Text style={styles.saveButtonText}>
+          {id ? "Update Data" : "Simpan Data"}
+        </Text>
+      </TouchableOpacity>
+      
+      {/* View tambahan untuk padding bawah agar tidak terpotong */}
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
+  container: { padding: 16, backgroundColor: "#f9f9f9" },
+  label: { fontWeight: "bold", marginTop: 10, marginBottom: 5 },
   input: {
     borderWidth: 1,
+    borderColor: "#ccc",
     marginBottom: 10,
     padding: 10,
     borderRadius: 8,
     backgroundColor: "#fff",
   },
-  saveButton: {
-    backgroundColor: "green",
-    padding: 12,
-    marginTop: 10,
+  pickerBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    marginBottom: 10,
+  },
+  uploadButton: {
+    backgroundColor: "#6366f1",
+    padding: 10,
     borderRadius: 8,
     alignItems: "center",
   },
-  saveButtonText: { color: "#fff" },
+  saveButton: {
+    backgroundColor: "green",
+    padding: 15,
+    marginTop: 20,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  saveButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   jk: {
+    flex: 1,
     padding: 10,
-    margin: 5,
+    marginHorizontal: 5,
     borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 5,
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   active: {
     backgroundColor: "#4ade80",
+    borderColor: "#22c55e",
+  },
+  previewFoto: {
+    width: 150,
+    height: 150,
+    marginTop: 10,
+    borderRadius: 10,
+    alignSelf: "center",
   },
 });
