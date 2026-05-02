@@ -5,16 +5,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import api from "../api/api";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function PesertaDetailScreen({ route, navigation }) {
   const { id } = route.params;
   const [peserta, setPeserta] = useState(null);
 
-  useEffect(() => {
-    getDetailPeserta();
-  }, []);
+  // 🔥 Auto refresh setiap balik ke screen ini
+  useFocusEffect(
+    React.useCallback(() => {
+      getDetailPeserta();
+    }, [])
+  );
 
   const getDetailPeserta = async () => {
     try {
@@ -39,6 +44,13 @@ export default function PesertaDetailScreen({ route, navigation }) {
       <View style={styles.card}>
         <Text style={styles.nama}>{peserta.nama}</Text>
 
+        {peserta.foto ? (
+          <Image
+            source={{ uri: peserta.foto }}
+            style={{ width: 100, height: 100, marginBottom: 10 }}
+          />
+        ) : null}
+
         <Text style={styles.label}>ID</Text>
         <Text style={styles.value}>{peserta.id}</Text>
 
@@ -48,14 +60,28 @@ export default function PesertaDetailScreen({ route, navigation }) {
         <Text style={styles.label}>Tanggal Lahir</Text>
         <Text style={styles.value}>{peserta.tanggallahir}</Text>
 
+        <Text style={styles.label}>Agama</Text>
+        <Text style={styles.value}>{peserta.agama}</Text>
+
         <Text style={styles.label}>Alamat</Text>
         <Text style={styles.value}>{peserta.alamat}</Text>
 
-        <Text style={styles.label}>Telepon</Text>
-        <Text style={styles.value}>{peserta.telepon}</Text>
+        <Text style={styles.label}>Telpon</Text>
+        <Text style={styles.value}>{peserta.telpon}</Text>
 
         <Text style={styles.label}>Jenis Kelamin</Text>
-        <Text style={styles.value}>{peserta.jk}</Text>
+        <Text style={styles.value}>
+          {peserta.jk === "L" ? "Laki-laki" : "Perempuan"}
+        </Text>
+
+        <Text style={styles.label}>Hobi</Text>
+        <Text style={styles.value}>{peserta.hobi}</Text>
+
+        <Text style={styles.label}>Kab/Kota</Text>
+        <Text style={styles.value}>{peserta.nama_kabko}</Text>
+
+        <Text style={styles.label}>Provinsi</Text>
+        <Text style={styles.value}>{peserta.nama_provinsi}</Text>
       </View>
 
       <TouchableOpacity
